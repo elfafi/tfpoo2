@@ -7,8 +7,14 @@ let cart=JSON.parse(localStorage.getItem("nike_cart")||"[]"),activeFilter="Noved
 function notify(text,type="info"){toast.textContent=text;toast.dataset.type=type;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),2600)}
 function stockText(p){if(p.stock===0)return'<span class="stock out">Sin stock</span>';if(p.stock<=5)return'<span class="stock low">Quedan pocas unidades</span>';return'<span class="stock available">Disponible</span>'}
 function matchesFilter(p){if(activeFilter==="Novedades")return p.line==="Novedades";if(activeFilter==="Hombre"||activeFilter==="Mujer")return p.audience===activeFilter;return p.line===activeFilter}
+function productVisual(p){
+    const isBall=p.category==="Pelotas",isShirt=p.category==="Ropa"||p.category==="Camisetas",isBoot=p.category==="Chimpunes";
+    const shape=isBall?`<circle cx="400" cy="300" r="155" fill="#f8f8f8" stroke="#111" stroke-width="16"/><path d="M400 145l75 55-28 88h-94l-28-88zM245 260l108 28-5 96-94 35M555 260l-108 28 5 96 94 35M320 510l28-126h104l28 126" fill="none" stroke="#111" stroke-width="16"/>`:isShirt?`<path d="M270 175l90-45h80l90 45 100 105-75 75-55-55v250H300V300l-55 55-75-75z" fill="url(#g)" stroke="#111" stroke-width="10"/><path d="M360 130q40 80 80 0" fill="none" stroke="#111" stroke-width="10"/>`:isBoot?`<path d="M170 395c130-10 190-65 250-180l95 30 15 95 115 55c25 12 15 65-20 65H205c-70 0-85-55-35-65z" fill="url(#g)" stroke="#111" stroke-width="10"/><path d="M290 330l190 45M250 500v35m80-35v35m80-35v35m80-35v35" stroke="#111" stroke-width="13"/>`:`<path d="M125 390c105-15 180-95 245-190 40-58 100-48 145 5l55 65 125 80c40 25 20 90-25 90H170c-60 0-80-40-45-50z" fill="url(#g)" stroke="#111" stroke-width="10"/><path d="M220 390c110-15 205-65 300-160M130 440h545" fill="none" stroke="#fff" stroke-width="15"/>`;
+    const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800"><defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="${p.visualA||"#111"}"/><stop offset="1" stop-color="${p.visualB||"#777"}"/></linearGradient></defs><rect width="800" height="800" fill="${p.visualBg||"#efefef"}"/><g transform="translate(0 40)">${shape}</g><text x="50%" y="675" text-anchor="middle" font-family="Arial" font-size="31" font-weight="700" fill="#111">${p.name}</text><text x="50%" y="720" text-anchor="middle" font-family="Arial" font-size="19" fill="#555">${p.color}</text><text x="50%" y="755" text-anchor="middle" font-family="Arial" font-size="18" font-weight="700" fill="#111">NIKE ${p.category.toUpperCase()}</text></svg>`;
+    return`data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
 function renderProducts(){
-    productGrid.innerHTML=productRepo.all().filter(matchesFilter).map(p=>`<article class="card reveal ${p.stock===0?"sold-out":""}"><div class="image-wrap"><img src="${p.image}" alt="${p.name}" loading="lazy">${p.line==="Novedades"?'<span class="new-tag">Nuevo</span>':""}</div><div class="card-row"><div><h3>${p.name}</h3><span class="muted">${p.category} · ${p.color}<br>Talla ${p.size}</span>${stockText(p)}</div><b>${money(p.price)}</b></div><button ${p.stock===0?"disabled":""} onclick="add(${p.id})">${p.stock===0?"Producto agotado":"Agregar al carrito"}</button></article>`).join("")||"<p>No hay productos en esta sección.</p>";
+    productGrid.innerHTML=productRepo.all().filter(matchesFilter).map(p=>`<article class="card reveal ${p.stock===0?"sold-out":""}"><div class="image-wrap"><img src="${productVisual(p)}" alt="${p.name}" loading="lazy">${p.line==="Novedades"?'<span class="new-tag">Nuevo</span>':""}</div><div class="card-row"><div><h3>${p.name}</h3><span class="muted">${p.category} · ${p.color}<br>Talla ${p.size}</span>${stockText(p)}</div><b>${money(p.price)}</b></div><button ${p.stock===0?"disabled":""} onclick="add(${p.id})">${p.stock===0?"Producto agotado":"Agregar al carrito"}</button></article>`).join("")||"<p>No hay productos en esta sección.</p>";
     observeReveals();
 }
 function add(id){
@@ -20,7 +26,7 @@ function removeItem(id){cart=cart.filter(x=>x.id!==id);saveCart();renderCart()}
 function changeQuantity(id,amount){const item=cart.find(x=>x.id===id),p=productRepo.all().find(x=>x.id===id);if(!item)return;if(amount>0&&item.quantity>=p.stock)return notify("No hay más unidades disponibles","error");item.quantity+=amount;if(item.quantity<=0)removeItem(id);else{saveCart();renderCart()}}
 function saveCart(){localStorage.setItem("nike_cart",JSON.stringify(cart))}
 function renderCart(){
-    let sum=0;$("#cart").innerHTML=cart.map(i=>{const p=productRepo.all().find(x=>x.id===i.id);if(!p)return"";sum+=p.price*i.quantity;return`<div class="cart-item"><img src="${p.image}"><span><b>${p.name}</b><br><small>${money(p.price)}</small><span class="qty"><button onclick="changeQuantity(${p.id},-1)">−</button>${i.quantity}<button onclick="changeQuantity(${p.id},1)">+</button></span></span><button onclick="removeItem(${p.id})">×</button></div>`}).join("")||'<div class="empty-cart"><b>Tu carrito está vacío</b><span>Agrega tus productos favoritos.</span></div>';
+    let sum=0;$("#cart").innerHTML=cart.map(i=>{const p=productRepo.all().find(x=>x.id===i.id);if(!p)return"";sum+=p.price*i.quantity;return`<div class="cart-item"><img src="${productVisual(p)}"><span><b>${p.name}</b><br><small>${money(p.price)}</small><span class="qty"><button onclick="changeQuantity(${p.id},-1)">−</button>${i.quantity}<button onclick="changeQuantity(${p.id},1)">+</button></span></span><button onclick="removeItem(${p.id})">×</button></div>`}).join("")||'<div class="empty-cart"><b>Tu carrito está vacío</b><span>Agrega tus productos favoritos.</span></div>';
     count.textContent=cart.reduce((a,x)=>a+x.quantity,0);total.textContent=money(sum);
 }
 function setFilter(filter){activeFilter=filter;$$("[data-filter]").forEach(a=>a.classList.toggle("active",a.dataset.filter===filter));$("#productos").scrollIntoView({behavior:"smooth"});renderProducts()}
@@ -33,8 +39,8 @@ async function submitAuth(e){
     const result=authMode==="register"?await supabaseClient.auth.signUp({email,password,options:{data:{full_name:name}}}):await supabaseClient.auth.signInWithPassword({email,password});
     authSubmit.disabled=false;setAuthMode(authMode);
     if(result.error)return showAuthError(result.error.message);
+    if(authMode==="register"&&!result.data.session)return showAuthError("La confirmación por correo está activa en Supabase. Desactiva Confirm email para entrar inmediatamente.");
     currentUser=result.data.session?.user||null;loginModal.close();await loadProfile();notify(authMode==="register"?"Cuenta creada correctamente":"Sesión iniciada","success");
-    if(authMode==="register"&&!result.data.session)notify("Revisa tu correo para confirmar la cuenta");
     if(result.data.session&&cart.length)drawer.classList.add("open");
 }
 function showAuthError(message){authMessage.textContent=message;authMessage.className="auth-message error"}
