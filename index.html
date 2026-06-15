@@ -2,61 +2,73 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión - NIKE</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Nike Store</title>
+    <link rel="stylesheet" href="css/tienda.css">
 </head>
 <body>
-    <div class="split-container">
-        <!-- Left Panel: Brand Aesthetic Image -->
-        <div class="split-image-panel">
-            <div class="split-image-bg"></div>
-            <div class="split-image-overlay"></div>
-            <div class="split-image-content">
-                <!-- Nike Swoosh: simple clean SVG that renders correctly -->
-                <svg class="brand-logo-svg" viewBox="0 0 100 38" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M98 4C73 17 38 33 12 37.5 4 38.8 0 36 1 31c1-5 6-9.5 14-12.5L98 4Z"/>
-                </svg>
-                <h1 class="brand-title">NIKE</h1>
-                <p class="brand-subtitle">ATHLETICS DEPT.</p>
-            </div>
+    <div class="top">ENVÍO GRATIS PARA MIEMBROS · DEVOLUCIONES EN 30 DÍAS</div>
+    <header class="nav">
+        <span class="brand">NIKE</span>
+        <nav>
+            <a href="#productos">Novedades</a>
+            <a href="#productos">Hombre</a>
+            <a href="#productos">Mujer</a>
+            <a href="#productos">Jordan</a>
+        </nav>
+        <div class="nav-actions">
+            <a id="adminLink" href="gestion.html">Administrar</a>
+            <button id="sessionBtn">Iniciar sesión</button>
+            <button id="cartBtn">Bolsa <b id="count">0</b></button>
         </div>
+    </header>
 
-        <!-- Right Panel: Login Form -->
-        <div class="split-form-panel">
-            <div class="form-wrapper">
-                <div class="login-card">
-                    <div class="form-header">
-                        <!-- Simple wordmark logo instead of problematic SVG -->
-                        <div class="form-wordmark">NIKE</div>
-                        <h2 class="form-title">Portal de Acceso</h2>
-                        <p class="form-subtitle">Introduce tus credenciales administrativas.</p>
-                    </div>
-
-                    <!-- Alert Container for dynamic errors/messages -->
-                    <div id="alertContainer"></div>
-
-                    <form id="loginForm">
-                        <div class="form-group">
-                            <label for="username" class="form-label">Usuario</label>
-                            <input type="text" id="username" class="form-input" placeholder="Ingresa tu usuario" required autocomplete="off">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="password" class="form-label">Contraseña</label>
-                            <input type="password" id="password" class="form-input" placeholder="Ingresa tu contraseña" required>
-                        </div>
-
-                        <button type="submit" id="submitBtn" class="btn">
-                            <span>Ingresar</span>
-                        </button>
-                    </form>
-                </div>
-            </div>
+    <section class="hero">
+        <div>
+            <b>NIKE AIR MAX</b>
+            <h1>DON'T WASTE<br>YOUR AIR</h1>
+            <p>Movimiento sin límites. Diseño que no pide permiso.</p>
+            <button class="pill" onclick="document.querySelector('#productos').scrollIntoView()">Comprar ahora</button>
         </div>
-    </div>
+    </section>
 
-    <!-- Client-Side Session Control Script -->
-    <script src="js/login.js"></script>
+    <section class="section" id="productos">
+        <div class="shop-heading">
+            <div><span class="muted">Compra lo nuevo</span><h2>Los favoritos de esta semana</h2></div>
+            <p class="muted">Selecciona un producto para comenzar tu compra.</p>
+        </div>
+        <div id="productGrid" class="grid"></div>
+    </section>
+
+    <section class="store-benefits">
+        <article><b>Envío gratuito</b><span>Para miembros Nike</span></article>
+        <article><b>Compra segura</b><span>Tu sesión protege la compra</span></article>
+        <article><b>Devoluciones fáciles</b><span>Hasta 30 días</span></article>
+    </section>
+
+    <aside id="drawer" class="drawer">
+        <button class="close">×</button>
+        <h2>Tu bolsa</h2>
+        <div id="cart"></div>
+        <div class="total"><span>Total</span><b id="total">S/ 0.00</b></div>
+        <button id="checkout" class="primary">Finalizar compra</button>
+    </aside>
+
+    <dialog id="loginModal">
+        <button class="close" id="closeLogin">×</button>
+        <div class="brand">NIKE</div>
+        <h2>Inicia sesión para comprar</h2>
+        <p class="muted">Necesitas una cuenta para agregar productos y finalizar tu compra.</p>
+        <form id="shopLogin">
+            <input name="user" placeholder="Usuario" required autocomplete="username">
+            <input name="password" type="password" placeholder="Contraseña" required autocomplete="current-password">
+            <button class="primary">Iniciar sesión</button>
+        </form>
+        <p class="muted login-help">Cuenta disponible: <b>fabian</b> / <b>ingeniero</b></p>
+    </dialog>
+
+    <div id="toast" class="toast"></div>
+    <script src="js/patrones.js"></script>
+    <script src="js/tienda.js"></script>
 </body>
 </html>

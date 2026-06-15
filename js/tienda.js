@@ -1,12 +1,17 @@
-const P=window.NikePatterns,productRepo=new P.Repository("products"),auth=new P.AuthFacade();let cart=[];
+const P=window.NikePatterns,productRepo=new P.Repository("products"),auth=new P.AuthFacade();let cart=[],pendingAction=null;
 const $=s=>document.querySelector(s),money=n=>`S/ ${Number(n).toFixed(2)}`,notify=t=>{toast.textContent=t;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),2200)};
-const productGrid=$("#productGrid"),count=$("#count"),total=$("#total"),drawer=$("#drawer"),cartBtn=$("#cartBtn"),checkout=$("#checkout"),loginModal=$("#loginModal"),shopLogin=$("#shopLogin"),toast=$("#toast");
+const productGrid=$("#productGrid"),count=$("#count"),total=$("#total"),drawer=$("#drawer"),cartBtn=$("#cartBtn"),checkout=$("#checkout"),loginModal=$("#loginModal"),shopLogin=$("#shopLogin"),toast=$("#toast"),sessionBtn=$("#sessionBtn"),closeLogin=$("#closeLogin"),adminLink=$("#adminLink");
 function renderProducts(){productGrid.innerHTML=productRepo.all().map(p=>`<article class="card"><img src="${p.image}" alt="${p.name}"><div class="card-row"><div><h3>${p.name}</h3><span class="muted">${p.category} · ${p.color}<br>Talla ${p.size} · ${p.stock} disponibles</span></div><b>${money(p.price)}</b></div><button onclick="add(${p.id})">Agregar a la bolsa</button></article>`).join("")}
-function add(id){const item=cart.find(x=>x.id===id);item?item.quantity++:cart.push({id,quantity:1});renderCart();notify("Producto agregado")}
+function requireLogin(action){pendingAction=action;loginModal.showModal()}
+function add(id){if(!auth.isAdmin())return requireLogin(()=>add(id));const item=cart.find(x=>x.id===id);item?item.quantity++:cart.push({id,quantity:1});renderCart();notify("Producto agregado")}
 function removeItem(id){cart=cart.filter(x=>x.id!==id);renderCart()}
 function renderCart(){let sum=0;$("#cart").innerHTML=cart.map(i=>{const p=productRepo.all().find(x=>x.id===i.id);sum+=p.price*i.quantity;return`<div class="cart-item"><img src="${p.image}"><span><b>${p.name}</b><br><small>${i.quantity} × ${money(p.price)}</small></span><button onclick="removeItem(${p.id})">×</button></div>`}).join("")||"<p>Tu bolsa está vacía.</p>";count.textContent=cart.reduce((a,x)=>a+x.quantity,0);total.textContent=money(sum)}
 cartBtn.onclick=()=>drawer.classList.add("open");document.querySelector(".drawer .close").onclick=()=>drawer.classList.remove("open");
-checkout.onclick=()=>{if(!cart.length)return notify("Agrega productos primero");if(!auth.isAdmin())return loginModal.showModal();completeSale()};
-shopLogin.onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);if(!auth.login(f.get("user"),f.get("password")))return notify("Credenciales incorrectas");loginModal.close();completeSale()};
+checkout.onclick=()=>{if(!cart.length)return notify("Agrega productos primero");if(!auth.isAdmin())return requireLogin(completeSale);completeSale()};
+shopLogin.onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);if(!auth.login(f.get("user"),f.get("password")))return notify("Credenciales incorrectas");loginModal.close();updateSession();notify("Sesión iniciada");const action=pendingAction;pendingAction=null;if(action)action()};
+if(sessionBtn)sessionBtn.onclick=()=>auth.isAdmin()?logoutShop():requireLogin(null);
+if(closeLogin)closeLogin.onclick=()=>{pendingAction=null;loginModal.close()};
+function logoutShop(){sessionStorage.removeItem("user");updateSession();notify("Sesión cerrada")}
+function updateSession(){if(sessionBtn)sessionBtn.textContent=auth.isAdmin()?"Cerrar sesión":"Iniciar sesión";if(adminLink)adminLink.style.display=auth.isAdmin()?"inline":"none"}
 function completeSale(){const sale=new P.SaleTemplate().process({client:"Fabian",receipt:"BOLETA",strategy:new P.PricingStrategy(),items:cart.map(i=>({quantity:i.quantity,product:productRepo.all().find(p=>p.id===i.id)}))});cart=[];renderCart();drawer.classList.remove("open");notify(P.ReceiptFactory.create("BOLETA",sale)+" generada")}
-renderProducts();renderCart();
+renderProducts();renderCart();updateSession();
