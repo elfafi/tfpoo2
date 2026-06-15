@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - NIKE</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="split-container">
+        <!-- Left Panel: Brand Aesthetic Image -->
+        <div class="split-image-panel">
+            <div class="split-image-bg"></div>
+            <div class="split-image-overlay"></div>
+            <div class="split-image-content">
+                <!-- Nike Swoosh: simple clean SVG that renders correctly -->
+                <svg class="brand-logo-svg" viewBox="0 0 100 38" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M98 4C73 17 38 33 12 37.5 4 38.8 0 36 1 31c1-5 6-9.5 14-12.5L98 4Z"/>
+                </svg>
+                <h1 class="brand-title">NIKE</h1>
+                <p class="brand-subtitle">ATHLETICS DEPT.</p>
+            </div>
+        </div>
+
+        <!-- Right Panel: Login Form -->
+        <div class="split-form-panel">
+            <div class="form-wrapper">
+                <div class="login-card">
+                    <div class="form-header">
+                        <!-- Simple wordmark logo instead of problematic SVG -->
+                        <div class="form-wordmark">NIKE</div>
+                        <h2 class="form-title">Portal de Acceso</h2>
+                        <p class="form-subtitle">Introduce tus credenciales administrativas.</p>
+                    </div>
+
+                    <!-- Alert Container for dynamic errors/messages -->
+                    <div id="alertContainer"></div>
+
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="username" class="form-label">Usuario</label>
+                            <input type="text" id="username" class="form-input" placeholder="Ingresa tu usuario" required autocomplete="off">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" id="password" class="form-input" placeholder="Ingresa tu contraseña" required>
+                        </div>
+
+                        <button type="submit" id="submitBtn" class="btn">
+                            <span>Ingresar</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client-Side Session Control Script -->
+    <script src="js/login.js"></script>
+</body>
+</html>
