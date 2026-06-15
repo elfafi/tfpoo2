@@ -11,15 +11,16 @@
     <header class="nav">
         <span class="brand">NIKE</span>
         <nav>
-            <a href="#productos">Novedades</a>
-            <a href="#productos">Hombre</a>
-            <a href="#productos">Mujer</a>
-            <a href="#productos">Jordan</a>
+            <a href="#productos" data-filter="Novedades">Novedades</a>
+            <a href="#productos" data-filter="Hombre">Hombre</a>
+            <a href="#productos" data-filter="Mujer">Mujer</a>
+            <a href="#productos" data-filter="Jordan">Jordan</a>
+            <a href="#productos" data-filter="Fútbol">Fútbol</a>
         </nav>
         <div class="nav-actions">
             <a id="adminLink" href="gestion.html">Administrar</a>
             <button id="sessionBtn">Iniciar sesión</button>
-            <button id="cartBtn">Bolsa <b id="count">0</b></button>
+            <button id="cartBtn">Carrito <b id="count">0</b></button>
         </div>
     </header>
 
@@ -48,7 +49,7 @@
 
     <aside id="drawer" class="drawer">
         <button class="close">×</button>
-        <h2>Tu bolsa</h2>
+        <h2>Tu carrito</h2>
         <div id="cart"></div>
         <div class="total"><span>Total</span><b id="total">S/ 0.00</b></div>
         <button id="checkout" class="primary">Finalizar compra</button>
@@ -56,19 +57,23 @@
 
     <dialog id="loginModal">
         <button class="close" id="closeLogin">×</button>
-        <div class="brand">NIKE</div>
-        <h2>Inicia sesión para comprar</h2>
-        <p class="muted">Necesitas una cuenta para agregar productos y finalizar tu compra.</p>
+        <div class="auth-logo"><div class="brand">NIKE</div><span>MEMBER ACCESS</span></div>
+        <h2 id="authTitle">Inicia sesión para continuar</h2>
+        <p class="muted" id="authDescription">Accede a tu cuenta para finalizar la compra.</p>
+        <div class="auth-tabs"><button type="button" class="active" data-auth-mode="login">Iniciar sesión</button><button type="button" data-auth-mode="register">Crear cuenta</button></div>
         <form id="shopLogin">
-            <input name="user" placeholder="Usuario" required autocomplete="username">
+            <input name="name" class="register-only" placeholder="Nombre completo" autocomplete="name">
+            <input name="email" type="email" placeholder="Correo electrónico" required autocomplete="email">
             <input name="password" type="password" placeholder="Contraseña" required autocomplete="current-password">
-            <button class="primary">Iniciar sesión</button>
+            <button class="primary" id="authSubmit">Iniciar sesión</button>
         </form>
-        <p class="muted login-help">Cuenta disponible: <b>fabian</b> / <b>ingeniero</b></p>
+        <p class="auth-message" id="authMessage"></p>
     </dialog>
 
     <div id="toast" class="toast"></div>
     <script src="js/patrones.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
     <script src="js/tienda.js"></script>
 </body>
 </html>

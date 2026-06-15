@@ -5,6 +5,7 @@ class DatabaseSingleton {
         if (DatabaseSingleton.instance) return DatabaseSingleton.instance;
         this.key = "nike_business_data";
         this.data = JSON.parse(localStorage.getItem(this.key) || "null") || this.seed();
+        this.migrateCatalog();
         DatabaseSingleton.instance = this;
     }
     seed() {
@@ -12,17 +13,30 @@ class DatabaseSingleton {
             users: [{id:1,name:"Fabian",username:"fabian",role:"ADMIN"}],
             clients: [{id:1,name:"Alex Runner",email:"alex@nike.demo",phone:"999 111 222"}],
             suppliers: [{id:1,name:"Nike Distribution LATAM",contact:"supply@nike.demo",channel:"Directo"}],
-            products: [
-                {id:101,name:"Air Max Dn8",category:"Calzado",color:"Negro / Rojo",size:"42",price:789.9,stock:18,image:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=80"},
-                {id:102,name:"Pegasus Premium",category:"Running",color:"Blanco / Volt",size:"41",price:699.9,stock:24,image:"https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=900&q=80"},
-                {id:103,name:"Tech Fleece Windrunner",category:"Ropa",color:"Gris",size:"M",price:459.9,stock:13,image:"https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=900&q=80"},
-                {id:104,name:"Dri-FIT Academy",category:"Ropa",color:"Negro",size:"L",price:189.9,stock:35,image:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80"},
-                {id:105,name:"Air Jordan 1 Low",category:"Jordan",color:"Blanco / Negro",size:"43",price:629.9,stock:10,image:"https://images.unsplash.com/photo-1597045566677-8cf032ed6634?auto=format&fit=crop&w=900&q=80"}
-            ],
+            products: this.catalog(),
             sales: [{id:90,client:"Alex Runner",total:789.9,status:"PAGADA",date:new Date().toISOString(),receipt:"BOLETA"}]
         };
         localStorage.setItem(this.key, JSON.stringify(data)); return data;
     }
+    catalog(){return[
+        {id:101,name:"Air Max Dn8",category:"Calzado",audience:"Hombre",line:"Novedades",color:"Negro / Rojo",size:"42",price:789.9,stock:18,image:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=80"},
+        {id:102,name:"Pegasus Premium",category:"Running",audience:"Hombre",line:"Novedades",color:"Blanco / Volt",size:"41",price:699.9,stock:4,image:"https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=900&q=80"},
+        {id:103,name:"Tech Fleece Windrunner",category:"Ropa",audience:"Hombre",line:"Hombre",color:"Gris",size:"M",price:459.9,stock:13,image:"https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=900&q=80"},
+        {id:104,name:"Dri-FIT Academy",category:"Ropa",audience:"Hombre",line:"Hombre",color:"Negro",size:"L",price:189.9,stock:0,image:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80"},
+        {id:105,name:"Air Jordan 1 Low",category:"Jordan",audience:"Unisex",line:"Jordan",color:"Blanco / Negro",size:"43",price:629.9,stock:10,image:"https://images.unsplash.com/photo-1597045566677-8cf032ed6634?auto=format&fit=crop&w=900&q=80"},
+        {id:106,name:"Nike One Classic",category:"Ropa",audience:"Mujer",line:"Mujer",color:"Rosa",size:"S",price:169.9,stock:15,image:"https://images.unsplash.com/photo-1506629082955-511b1aa562c8?auto=format&fit=crop&w=900&q=80"},
+        {id:107,name:"Nike Motiva",category:"Calzado",audience:"Mujer",line:"Novedades",color:"Blanco / Lila",size:"38",price:499.9,stock:3,image:"https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=900&q=80"},
+        {id:108,name:"Sportswear Phoenix Fleece",category:"Ropa",audience:"Mujer",line:"Mujer",color:"Crema",size:"M",price:329.9,stock:9,image:"https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80"},
+        {id:109,name:"Air Jordan 4 Retro",category:"Jordan",audience:"Unisex",line:"Jordan",color:"Blanco / Azul",size:"42",price:899.9,stock:2,image:"https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=900&q=80"},
+        {id:110,name:"Jordan Flight Fleece",category:"Jordan",audience:"Mujer",line:"Jordan",color:"Negro",size:"S",price:369.9,stock:8,image:"https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=900&q=80"},
+        {id:111,name:"Camiseta Local Perú",category:"Camisetas",audience:"Unisex",line:"Fútbol",color:"Blanco / Rojo",size:"M",price:299.9,stock:12,image:"https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=900&q=80"},
+        {id:112,name:"Camiseta Academy Pro",category:"Camisetas",audience:"Hombre",line:"Fútbol",color:"Azul",size:"L",price:219.9,stock:5,image:"https://images.unsplash.com/photo-1526232761682-d26e03ac148e?auto=format&fit=crop&w=900&q=80"},
+        {id:113,name:"Mercurial Superfly",category:"Chimpunes",audience:"Unisex",line:"Fútbol",color:"Volt / Negro",size:"42",price:999.9,stock:4,image:"https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=900&q=80"},
+        {id:114,name:"Phantom GX Academy",category:"Chimpunes",audience:"Unisex",line:"Fútbol",color:"Blanco / Rosa",size:"41",price:449.9,stock:0,image:"https://images.unsplash.com/photo-1579338559194-a162d19bf842?auto=format&fit=crop&w=900&q=80"},
+        {id:115,name:"Nike Flight",category:"Pelotas",audience:"Unisex",line:"Fútbol",color:"Blanco / Multicolor",size:"5",price:599.9,stock:7,image:"https://images.unsplash.com/photo-1614632537190-23e4146777db?auto=format&fit=crop&w=900&q=80"},
+        {id:116,name:"Premier League Academy",category:"Pelotas",audience:"Unisex",line:"Fútbol",color:"Amarillo / Morado",size:"5",price:159.9,stock:3,image:"https://images.unsplash.com/photo-1552318965-6e6be7484ada?auto=format&fit=crop&w=900&q=80"}
+    ]}
+    migrateCatalog(){if(this.data.catalogVersion===2)return;this.data.products=this.catalog();this.data.catalogVersion=2;this.save();}
     save(){ localStorage.setItem(this.key, JSON.stringify(this.data)); }
 }
 

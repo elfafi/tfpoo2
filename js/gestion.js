@@ -4,7 +4,7 @@ const schemas={
  users:{title:"Usuarios",fields:["name","username","role"],labels:["Nombre","Usuario","Rol"]},
  clients:{title:"Clientes",fields:["name","email","phone"],labels:["Nombre","Correo","Teléfono"]},
  suppliers:{title:"Proveedores",fields:["name","contact","channel"],labels:["Nombre","Contacto","Canal"]},
- products:{title:"Productos",fields:["name","category","color","size","price","stock","image"],labels:["Nombre","Categoría","Color","Talla","Precio","Stock","Imagen URL"]}
+ products:{title:"Productos",fields:["name","category","audience","line","color","size","price","stock","image"],labels:["Nombre","Categoría","Público","Línea","Color","Talla","Precio","Stock","Imagen URL"]}
 };
 const mediator=new P.MenuMediator();mediator.subscribe(name=>document.querySelectorAll(".admin-side button").forEach(b=>b.classList.toggle("active",b.dataset.view===name)));
 function toastMsg(t){toast.textContent=t;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),2000)}
