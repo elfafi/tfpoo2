@@ -1,5 +1,5 @@
 const P=window.NikePatterns,localAuth=new P.AuthFacade(),$=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],money=n=>`S/ ${Number(n).toFixed(2)}`;
-const view=$("#view"),title=$("#title"),toast=$("#toast"),authDialog=$("#authDialog"),adminLogin=$("#adminLogin"),productDialog=$("#productDialog"),editProductDialog=$("#editProductDialog");
+const view=$("#view"),title=$("#title"),toast=$("#toast"),authDialog=$("#authDialog"),adminLogin=$("#adminLogin"),productDialog=$("#productDialog"),editProductDialog=$("#editProductDialog"),entityDialog=$("#entityDialog");
 const supabaseClient=window.supabase?.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
 const schemas={
     users:{title:"Usuarios",fields:["name","username","role"],labels:["Nombre","Usuario","Rol"]},
@@ -45,9 +45,19 @@ function renderHome(){
 }
 function renderCrud(entity){
     const s=schemas[entity],repo=new P.Repository(entity);
-    view.innerHTML=`<div class="panel"><div class="panel-heading"><div><span class="eyebrow">GESTIÓN</span><h2>${s.title}</h2></div></div><form id="entityForm" class="entity-form">${s.fields.map((f,i)=>`<input name="${f}" placeholder="${s.labels[i]}" required>`).join("")}<button class="btn-primary">Agregar</button></form><div class="table-wrap"><table class="table"><thead><tr>${s.labels.map(x=>`<th>${x}</th>`).join("")}<th>Acción</th></tr></thead><tbody>${repo.all().map(x=>`<tr>${s.fields.map(f=>`<td>${escapeHtml(x[f])}</td>`).join("")}<td><button class="btn-danger" onclick="removeEntity('${entity}',${x.id})">Eliminar</button></td></tr>`).join("")}</tbody></table></div></div>`;
-    $("#entityForm").onsubmit=e=>{e.preventDefault();let data=Object.fromEntries(new FormData(e.target));if(entity==="users")data=new P.UserFactory().create(data.name,data.username,data.role);repo.save(data);toastMsg("Registro creado","success");renderCrud(entity)};
+    view.innerHTML=`<div class="panel"><div class="panel-heading"><div><span class="eyebrow">GESTIÓN</span><h2>${s.title}</h2></div><button class="btn-primary" onclick="openEntityDialog('${entity}')">+ Añadir</button></div><div class="table-wrap"><table class="table"><thead><tr>${s.labels.map(x=>`<th>${x}</th>`).join("")}<th>Acciones</th></tr></thead><tbody>${repo.all().map(x=>`<tr>${s.fields.map(f=>`<td>${escapeHtml(x[f])}</td>`).join("")}<td><div class="table-actions"><button class="btn-secondary" onclick="openEntityDialog('${entity}',${x.id})">Editar</button><button class="btn-danger" onclick="removeEntity('${entity}',${x.id})">Eliminar</button></div></td></tr>`).join("")}</tbody></table></div></div>`;
 }
+function openEntityDialog(entity,id){
+    const s=schemas[entity],item=id?new P.Repository(entity).all().find(x=>x.id===id):null;
+    $("#entityDialogTitle").textContent=item?`Editar ${s.title.toLowerCase()}`:`Añadir ${s.title.toLowerCase()}`;
+    const form=$("#entityDialogForm");form.dataset.entity=entity;form.innerHTML=`<input name="id" type="hidden" value="${item?.id||""}">${s.fields.map((field,i)=>`<label>${s.labels[i]}<input name="${field}" value="${escapeHtml(item?.[field]||"")}" required></label>`).join("")}<button class="primary">${item?"Guardar cambios":"Añadir registro"}</button>`;
+    entityDialog.showModal();
+}
+$("#entityDialogForm").onsubmit=e=>{
+    e.preventDefault();const entity=e.target.dataset.entity,formData=new FormData(e.target),id=Number(formData.get("id")),data={};
+    schemas[entity].fields.forEach(field=>data[field]=formData.get(field));if(id)data.id=id;else if(entity==="users")Object.assign(data,new P.UserFactory().create(data.name,data.username,data.role));
+    new P.Repository(entity).save(data);entityDialog.close();renderCrud(entity);toastMsg(id?"Registro actualizado":"Registro creado","success");
+};
 function removeEntity(entity,id){new P.Repository(entity).delete(id);renderCrud(entity);toastMsg("Registro eliminado")}
 
 function renderProducts(){
@@ -62,11 +72,12 @@ $("#productForm").onsubmit=e=>{
 };
 function openEditProduct(id){
     const p=new P.Repository("products").all().find(x=>x.id===id);if(!p)return;
-    $("#editProductName").textContent=p.name;const f=$("#editProductForm");f.elements.id.value=p.id;f.elements.size.value=p.size;f.elements.price.value=p.price;f.elements.stock.value=p.stock;editProductDialog.showModal();
+    $("#editProductName").textContent="Puedes cambiar el nombre, inventario y la ruta de imagen.";const f=$("#editProductForm");f.elements.id.value=p.id;f.elements.name.value=p.name;f.elements.size.value=p.size;f.elements.price.value=p.price;f.elements.stock.value=p.stock;f.elements.image.value=p.image;$("#editImagePreview").src=p.image;editProductDialog.showModal();
 }
+$("#editProductForm").elements.image.oninput=e=>$("#editImagePreview").src=e.target.value;
 $("#editProductForm").onsubmit=e=>{
     e.preventDefault();const f=new FormData(e.target),repo=new P.Repository("products"),p=repo.all().find(x=>x.id===+f.get("id"));if(!p)return;
-    p.size=f.get("size");p.price=+f.get("price");p.stock=+f.get("stock");repo.save(p);editProductDialog.close();renderProducts();toastMsg("Producto actualizado","success");
+    p.name=f.get("name");p.size=f.get("size");p.price=+f.get("price");p.stock=+f.get("stock");p.image=f.get("image");repo.save(p);editProductDialog.close();renderProducts();toastMsg("Producto actualizado","success");
 };
 function removeProduct(id){if(!confirm("¿Eliminar este producto?"))return;new P.Repository("products").delete(id);renderProducts();toastMsg("Producto eliminado")}
 
