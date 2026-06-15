@@ -19,24 +19,20 @@ class DatabaseSingleton {
         localStorage.setItem(this.key, JSON.stringify(data)); return data;
     }
     catalog(){return[
-        {id:101,name:"Air Max Dn8",category:"Calzado",audience:"Hombre",line:"Novedades",color:"Negro / Rojo",size:"42",price:789.9,stock:18,image:"images/products/air-jordan-1.jpg"},
-        {id:102,name:"Pegasus Premium",category:"Running",audience:"Hombre",line:"Novedades",color:"Blanco / Volt",size:"41",price:699.9,stock:4,image:"images/products/pegasus-premium.webp"},
-        {id:103,name:"Tech Fleece Windrunner",category:"Ropa",audience:"Hombre",line:"Hombre",color:"Gris",size:"M",price:459.9,stock:13,image:"images/products/phoenix-fleece.png"},
-        {id:104,name:"Dri-FIT Academy",category:"Camisetas",audience:"Hombre",line:"Hombre",color:"Negro",size:"L",price:189.9,stock:0,image:"images/products/academy-jersey.jpg"},
-        {id:105,name:"Air Jordan 1 Low",category:"Jordan",audience:"Unisex",line:"Jordan",color:"Blanco / Negro",size:"43",price:629.9,stock:10,image:"images/products/air-jordan-1.jpg"},
-        {id:106,name:"Nike One Classic",category:"Ropa",audience:"Mujer",line:"Mujer",color:"Rosa",size:"S",price:169.9,stock:15,image:"images/products/nike-one-classic.png"},
-        {id:107,name:"Nike Motiva",category:"Calzado",audience:"Mujer",line:"Novedades",color:"Blanco / Lila",size:"38",price:499.9,stock:3,image:"images/products/nike-motiva.png"},
-        {id:108,name:"Sportswear Phoenix Fleece",category:"Ropa",audience:"Mujer",line:"Mujer",color:"Crema",size:"M",price:329.9,stock:9,image:"images/products/phoenix-fleece.png"},
-        {id:109,name:"Air Jordan 4 Retro",category:"Jordan",audience:"Unisex",line:"Jordan",color:"Blanco / Azul",size:"42",price:899.9,stock:2,image:"images/products/air-jordan-4.jpg"},
-        {id:110,name:"Jordan Flight Fleece",category:"Ropa",audience:"Mujer",line:"Jordan",color:"Negro",size:"S",price:369.9,stock:8,image:"images/products/jordan-flight-fleece.png"},
-        {id:111,name:"Camiseta Local Perú",category:"Camisetas",audience:"Unisex",line:"Fútbol",color:"Blanco / Rojo",size:"M",price:299.9,stock:12,image:"images/products/peru-jersey.jpg"},
-        {id:112,name:"Camiseta Academy Pro",category:"Camisetas",audience:"Hombre",line:"Fútbol",color:"Azul",size:"L",price:219.9,stock:5,image:"images/products/academy-jersey.jpg"},
-        {id:113,name:"Mercurial Superfly",category:"Chimpunes",audience:"Unisex",line:"Fútbol",color:"Volt / Negro",size:"42",price:999.9,stock:4,image:"images/products/mercurial-superfly.jpg"},
-        {id:114,name:"Phantom GX Academy",category:"Chimpunes",audience:"Unisex",line:"Fútbol",color:"Blanco / Rosa",size:"41",price:449.9,stock:0,image:"images/products/mercurial-superfly.jpg"},
-        {id:115,name:"Nike Flight",category:"Pelotas",audience:"Unisex",line:"Fútbol",color:"Blanco / Multicolor",size:"5",price:599.9,stock:7,image:"images/products/nike-flight.png"},
-        {id:116,name:"Premier League Academy",category:"Pelotas",audience:"Unisex",line:"Fútbol",color:"Amarillo / Morado",size:"5",price:159.9,stock:3,image:"images/products/premier-league-ball.jpg"}
+        {id:201,name:"Brasil Stadium Local",category:"Camisetas",audience:"Hombre",line:"Novedades",color:"Amarillo / Verde",size:"M",price:429.9,stock:12,image:"images/products/world-cup-brazil.png"},
+        {id:202,name:"Francia Stadium Local",category:"Camisetas",audience:"Mujer",line:"Novedades",color:"Azul marino",size:"S",price:429.9,stock:8,image:"images/products/world-cup-france.png"},
+        {id:203,name:"Estados Unidos Stadium Local",category:"Camisetas",audience:"Hombre",line:"Novedades",color:"Blanco / Rojo",size:"L",price:429.9,stock:6,image:"images/products/world-cup-usa.png"},
+        {id:204,name:"Uruguay Stadium Local",category:"Camisetas",audience:"Mujer",line:"Novedades",color:"Celeste",size:"M",price:429.9,stock:7,image:"images/products/world-cup-uruguay.png"},
+        {id:211,name:"Países Bajos Stadium Local",category:"Camisetas",audience:"Hombre",line:"Novedades",color:"Naranja",size:"M",price:429.9,stock:4,image:"images/products/world-cup-netherlands.png"},
+        {id:212,name:"Inglaterra Stadium Local",category:"Camisetas",audience:"Mujer",line:"Novedades",color:"Blanco",size:"S",price:429.9,stock:0,image:"images/products/world-cup-england.png"},
+        {id:205,name:"Nike Air Force 1 '07 LV8",category:"Zapatillas",audience:"Hombre",line:"Zapatillas",color:"Crema / Negro",size:"42",price:599.9,stock:14,image:"images/products/nike-air-force-1-07-lv8.jpg"},
+        {id:206,name:"Nike Air Force 1 '07 LV8 Cream",category:"Zapatillas",audience:"Mujer",line:"Zapatillas",color:"Crema",size:"38",price:599.9,stock:5,image:"images/products/nike-air-force-1-07-lv8-cream.jpg"},
+        {id:207,name:"Nike SB Dunk Low Pro",category:"Zapatillas",audience:"Hombre",line:"Zapatillas",color:"Arena / Naranja",size:"42",price:549.9,stock:10,image:"images/products/nike-sb-dunk-low-pro.jpg"},
+        {id:208,name:"Nike SB Dunk Low Pro Red",category:"Zapatillas",audience:"Mujer",line:"Zapatillas",color:"Rojo / Blanco",size:"39",price:549.9,stock:3,image:"images/products/nike-sb-dunk-low-pro-red.jpg"},
+        {id:209,name:"Nike Dunk Low Retro",category:"Zapatillas",audience:"Hombre",line:"Zapatillas",color:"Blanco / Azul",size:"43",price:549.9,stock:9,image:"images/products/nike-dunk-low-retro.jpg"},
+        {id:210,name:"Nike Air Max 95 Big Bubble SE",category:"Zapatillas",audience:"Mujer",line:"Zapatillas",color:"Multicolor",size:"39",price:799.9,stock:2,image:"images/products/nike-air-max-95-big-bubble.jpg"}
     ]}
-    migrateCatalog(){if(this.data.catalogVersion===4)return;this.data.products=this.catalog();this.data.catalogVersion=4;this.save();}
+    migrateCatalog(){if(this.data.catalogVersion===6)return;this.data.products=this.catalog();this.data.catalogVersion=6;this.save();}
     save(){ localStorage.setItem(this.key, JSON.stringify(this.data)); }
 }
 

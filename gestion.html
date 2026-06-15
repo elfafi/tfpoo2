@@ -1,4 +1,78 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Gestión Nike</title><link rel="stylesheet" href="css/tienda.css"></head>
-<body><div class="admin-shell"><aside class="admin-side"><div class="brand">NIKE</div><p>OPERATIONS</p><button data-view="home" class="active">Dashboard</button><button data-view="users">Usuarios</button><button data-view="clients">Clientes</button><button data-view="suppliers">Proveedores</button><button data-view="products">Productos</button><button data-view="sales">Ventas</button><button data-view="reports">Reportes</button><button data-view="patterns">Patrones aplicados</button><a class="back" href="tienda.html">← Volver a tienda</a><a class="back" href="dashboard.html">Dashboard original</a></aside><main class="admin-main"><div class="toolbar"><div><small>ADMINISTRACIÓN</small><h1 id="title">Dashboard</h1></div><button id="logout" class="pill">Cerrar sesión</button></div><div id="view"></div></main></div>
-<dialog id="authDialog"><h2>Acceso administrativo</h2><form id="adminLogin"><input name="user" placeholder="Usuario" required><input name="password" type="password" placeholder="Contraseña" required><button class="primary">Ingresar</button></form><p class="muted">fabian / ingeniero</p></dialog><div id="toast" class="toast"></div>
-<script src="js/patrones.js"></script><script src="js/gestion.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gestión Nike</title>
+    <link rel="stylesheet" href="css/tienda.css">
+</head>
+<body class="admin-page">
+    <div class="admin-shell">
+        <aside class="admin-side">
+            <div class="admin-brand"><div class="brand">NIKE</div><span>ADMIN</span></div>
+            <p>OPERACIONES</p>
+            <button data-view="home" class="active">Dashboard</button>
+            <button data-view="users">Usuarios</button>
+            <button data-view="clients">Clientes</button>
+            <button data-view="suppliers">Proveedores</button>
+            <button data-view="products">Productos</button>
+            <button data-view="sales">Ventas</button>
+            <button data-view="reports">Reportes</button>
+            <button data-view="patterns">Patrones aplicados</button>
+            <a class="back" href="index.html">← Volver a la tienda</a>
+        </aside>
+        <main class="admin-main">
+            <div class="toolbar">
+                <div><small>ADMINISTRACIÓN</small><h1 id="title">Dashboard</h1></div>
+                <button id="logout" class="pill">Cerrar sesión</button>
+            </div>
+            <div id="view"></div>
+        </main>
+    </div>
+
+    <dialog id="productDialog" class="admin-dialog">
+        <button class="close" data-close-dialog="productDialog">×</button>
+        <span class="eyebrow">CATÁLOGO</span><h2>Añadir producto</h2>
+        <form id="productForm" class="modal-form">
+            <input name="name" placeholder="Nombre" required>
+            <input name="category" placeholder="Categoría" required>
+            <select name="audience" required><option value="">Público</option><option>Hombre</option><option>Mujer</option><option>Unisex</option></select>
+            <select name="line" required><option value="">Sección</option><option>Novedades</option><option>Zapatillas</option><option>Hombre</option><option>Mujer</option></select>
+            <input name="color" placeholder="Color" required>
+            <input name="size" placeholder="Talla" required>
+            <input name="price" type="number" min="0" step="0.10" placeholder="Precio" required>
+            <input name="stock" type="number" min="0" placeholder="Stock" required>
+            <input name="image" placeholder="Ruta de imagen" required>
+            <button class="primary">Guardar producto</button>
+        </form>
+    </dialog>
+
+    <dialog id="editProductDialog" class="admin-dialog">
+        <button class="close" data-close-dialog="editProductDialog">×</button>
+        <span class="eyebrow">INVENTARIO</span><h2>Editar producto</h2>
+        <p id="editProductName" class="muted"></p>
+        <form id="editProductForm" class="modal-form">
+            <input name="id" type="hidden">
+            <input name="size" placeholder="Talla" required>
+            <input name="price" type="number" min="0" step="0.10" placeholder="Precio" required>
+            <input name="stock" type="number" min="0" placeholder="Stock" required>
+            <button class="primary">Guardar cambios</button>
+        </form>
+    </dialog>
+
+    <dialog id="authDialog" class="admin-dialog">
+        <span class="eyebrow">ACCESO RESTRINGIDO</span><h2>Inicia sesión como administrador</h2>
+        <form id="adminLogin" class="modal-form">
+            <input name="email" placeholder="Correo o usuario" required>
+            <input name="password" type="password" placeholder="Contraseña" required>
+            <button class="primary">Ingresar</button>
+        </form>
+        <p id="adminAuthMessage" class="auth-message"></p>
+    </dialog>
+    <div id="toast" class="toast"></div>
+    <script src="js/patrones.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/gestion.js"></script>
+</body>
+</html>

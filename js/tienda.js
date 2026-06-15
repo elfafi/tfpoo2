@@ -53,7 +53,16 @@ async function completeSale(){
     if(!cart.length)return notify("Agrega productos primero","error");if(!currentUser)return openAuth("login");
     const items=cart.map(i=>({quantity:i.quantity,product:productRepo.all().find(p=>p.id===i.id)}));if(items.some(i=>!i.product||i.quantity>i.product.stock))return notify("Revisa el stock del carrito","error");
     const sale=new P.SaleTemplate().process({client:currentUser.email,receipt:"BOLETA",strategy:new P.PricingStrategy(),items});
+    await saveSaleToSupabase(sale,items);
     items.forEach(i=>{i.product.stock-=i.quantity;productRepo.save(i.product)});cart=[];saveCart();renderCart();renderProducts();drawer.classList.remove("open");notify(P.ReceiptFactory.create("BOLETA",sale)+" generada","success");
+}
+async function saveSaleToSupabase(sale,items){
+    if(!supabaseClient||!currentUser)return;
+    const{data,error}=await supabaseClient.from("ventas").insert({usuario_id:currentUser.id,cliente_email:currentUser.email,total:sale.total,estado:sale.status,comprobante:sale.receipt}).select("id").single();
+    if(error){notify("Compra realizada, pero no se pudo sincronizar la venta con Supabase.","error");return}
+    const detail=items.map(i=>({venta_id:data.id,producto_id:i.product.id,producto_nombre:i.product.name,cantidad:i.quantity,precio_unitario:i.product.price}));
+    const{error:detailError}=await supabaseClient.from("venta_items").insert(detail);
+    if(detailError)notify("La venta se registró, pero faltó sincronizar su detalle.","error");
 }
 function observeReveals(){const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add("visible");io.unobserve(e.target)}}),{threshold:.08});$$(".reveal").forEach(x=>io.observe(x))}
 
