@@ -334,10 +334,19 @@ body {
     gap: 12px;
 }
 
+.sidebar-logo-frame {
+    width: 88px;
+    height: 44px;
+    background: #000000;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .sidebar-logo-svg {
-    width: 45px;
+    width: 68px;
     height: auto;
-    color: #111111;
 }
 
 .sidebar-brand-name {
