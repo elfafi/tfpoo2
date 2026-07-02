@@ -26,6 +26,16 @@ async function fetchProfiles(role,id){
     const{data,error}=await query;
     return{data,error};
 }
+async function syncCurrentSessionClient(){
+    if(!supabaseClient)return;
+    const{data:{session}}=await supabaseClient.auth.getSession();if(!session)return;
+    const{data}=await supabaseClient.from("usuarios").select("nombre,email,rol").eq("id",session.user.id).maybeSingle();
+    if(data?.rol!=="CLIENTE")return;
+    const email=String(data.email||session.user.email||"").trim().toLowerCase();if(!email)return;
+    const repo=new P.Repository("clients"),existing=repo.all().find(c=>String(c.email||"").toLowerCase()===email);
+    const client={name:data.nombre||session.user.user_metadata?.full_name||email.split("@")[0],email,phone:existing?.phone||"Sin telefono"};
+    repo.save(existing?{...existing,...client}:client);
+}
 async function isSupabaseAdmin(){
     if(!supabaseClient)return false;
     const{data:{session}}=await supabaseClient.auth.getSession();
@@ -58,8 +68,9 @@ function renderHome(){
     const db=new P.DatabaseSingleton().data,r=new P.ReportFacade().generate();
     view.innerHTML=`<div class="stats">${[["Productos",db.products.length],["Clientes",db.clients.length],["Proveedores",db.suppliers.length],["Ventas locales",r.count]].map(x=>`<div class="stat"><span>${x[0]}</span><b>${x[1]}</b></div>`).join("")}</div><div class="admin-grid"><div class="panel admin-welcome"><span class="eyebrow">RESUMEN COMERCIAL</span><h2>Controla la tienda desde un solo lugar.</h2><p>Actualiza catálogo, inventario y ventas. Las nuevas compras también se registran en Supabase.</p><button class="btn-primary" onclick="render('products')">Gestionar productos</button></div><div class="panel"><span class="eyebrow">INGRESOS LOCALES</span><h2>${money(r.total)}</h2><p class="muted">Ventas pagadas acumuladas en este navegador.</p><button class="btn-secondary" onclick="render('sales')">Ver ventas</button></div></div>`;
 }
-function renderCrud(entity){
-    if(isPeopleEntity(entity)&&supabaseClient)return renderPeopleCrud(entity);
+async function renderCrud(entity){
+    if(isPeopleEntity(entity)&&supabaseClient&&await isSupabaseAdmin())return renderPeopleCrud(entity);
+    if(entity==="clients")await syncCurrentSessionClient();
     const s=schemas[entity],repo=new P.Repository(entity),rows=repo.all();
     view.innerHTML=`<div class="panel"><div class="panel-heading"><div><span class="eyebrow">GESTION</span><h2>${s.title}</h2></div><button class="btn-primary" onclick="openEntityDialog('${entity}')">+ Anadir</button></div><div class="table-wrap"><table class="table"><thead><tr>${s.labels.map(x=>`<th>${x}</th>`).join("")}<th>Acciones</th></tr></thead><tbody>${rows.map(x=>`<tr>${s.fields.map(f=>`<td>${escapeHtml(x[f])}</td>`).join("")}<td><div class="table-actions"><button class="btn-secondary" onclick="openEntityDialog('${entity}',${jsArg(x.id)})">Editar</button><button class="btn-danger" onclick="removeEntity('${entity}',${jsArg(x.id)})">Eliminar</button></div></td></tr>`).join("")||`<tr><td colspan="${s.labels.length+1}">No hay registros.</td></tr>`}</tbody></table></div></div>`;
 }
@@ -75,7 +86,7 @@ async function renderPeopleCrud(entity){
     view.innerHTML=`<div class="panel"><div class="panel-heading"><div><span class="eyebrow">SUPABASE AUTH</span><h2>${s.title}</h2><p class="muted">Los perfiles se crean automaticamente al registrar una cuenta en la tienda.</p></div></div><div class="table-wrap"><table class="table"><thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Registrado</th><th>Acciones</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${escapeHtml(x.nombre||"Sin nombre")}</td><td>${escapeHtml(x.email)}</td><td>${roleBadge(x.rol)}</td><td>${formatDate(x.creado_en)}</td><td><button class="btn-secondary" onclick="openEntityDialog('${entity}',${jsArg(x.id)})">Editar rol</button></td></tr>`).join("")||'<tr><td colspan="5">No hay registros en este rol.</td></tr>'}</tbody></table></div></div>`;
 }
 async function openEntityDialog(entity,id){
-    if(isPeopleEntity(entity)&&supabaseClient){
+    if(isPeopleEntity(entity)&&supabaseClient&&await isSupabaseAdmin()){
         const s=schemas[entity];
         if(!id)return toastMsg("Las cuentas nuevas se crean desde el registro de la tienda.","error");
         const{data,error}=await fetchProfiles(null,id);
@@ -92,7 +103,7 @@ async function openEntityDialog(entity,id){
 }
 $("#entityDialogForm").onsubmit=async e=>{
     e.preventDefault();const entity=e.target.dataset.entity,formData=new FormData(e.target);
-    if(isPeopleEntity(entity)&&supabaseClient){
+    if(isPeopleEntity(entity)&&supabaseClient&&await isSupabaseAdmin()){
         const id=formData.get("id"),rol=roleValue(formData.get("rol"));
         const{error}=await supabaseClient.from("usuarios").update({nombre:formData.get("nombre"),rol}).eq("id",id);
         if(error)return toastMsg(error.message,"error");
