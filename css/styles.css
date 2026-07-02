@@ -345,8 +345,10 @@ body {
 }
 
 .sidebar-logo-svg {
-    width: 68px;
-    height: auto;
+    display: block;
+    width: 88px;
+    height: 44px;
+    object-fit: cover;
 }
 
 .sidebar-brand-name {
