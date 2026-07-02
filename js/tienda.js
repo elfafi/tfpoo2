@@ -49,8 +49,10 @@ async function submitAuth(e){
     authSubmit.disabled=false;setAuthMode(authMode);
     if(result.error)return showAuthError(result.error.message);
     if(authMode==="register"&&!result.data.session)return showAuthError("La confirmación por correo está activa en Supabase. Desactiva Confirm email para entrar inmediatamente.");
+    currentUser=result.data.session?.user||null;
+    if(currentUser)await ensureRemoteProfile(authMode==="register"?name:currentUser.user_metadata?.full_name);
     if(authMode==="register")syncLocalClient(name,email);
-    currentUser=result.data.session?.user||null;loginModal.close();await loadProfile();notify(authMode==="register"?"Cuenta creada correctamente":"Sesión iniciada","success");
+    loginModal.close();await loadProfile();notify(authMode==="register"?"Cuenta creada correctamente":"Sesión iniciada","success");
     if(result.data.session&&cart.length)drawer.classList.add("open");
 }
 function showAuthError(message){authMessage.textContent=message;authMessage.className="auth-message error"}
@@ -60,7 +62,11 @@ function syncLocalClient(name,email){
     const data={name:String(name||"").trim()||cleanEmail.split("@")[0],email:cleanEmail,phone:existing?.phone||"Sin telefono"};
     repo.save(existing?{...existing,...data}:data);
 }
-async function loadProfile(){if(!currentUser||!supabaseClient)return updateSession();const{data}=await supabaseClient.from("usuarios").select("rol,nombre").eq("id",currentUser.id).maybeSingle();currentUser.profileRole=data?.rol;currentUser.profileName=data?.nombre;if(data?.rol==="CLIENTE")syncLocalClient(data?.nombre||currentUser.user_metadata?.full_name,currentUser.email);updateSession()}
+async function ensureRemoteProfile(name){
+    if(!supabaseClient||!currentUser)return;
+    await supabaseClient.rpc("sincronizar_mi_perfil",{p_nombre:name||currentUser.user_metadata?.full_name||""});
+}
+async function loadProfile(){if(!currentUser||!supabaseClient)return updateSession();let{data}=await supabaseClient.from("usuarios").select("rol,nombre").eq("id",currentUser.id).maybeSingle();if(!data){await ensureRemoteProfile(currentUser.user_metadata?.full_name);({data}=await supabaseClient.from("usuarios").select("rol,nombre").eq("id",currentUser.id).maybeSingle())}currentUser.profileRole=data?.rol;currentUser.profileName=data?.nombre;if(data?.rol==="CLIENTE")syncLocalClient(data?.nombre||currentUser.user_metadata?.full_name,currentUser.email);updateSession()}
 async function loadSession(){if(!supabaseClient)return;const{data}=await supabaseClient.auth.getSession();currentUser=data.session?.user||null;await loadProfile();supabaseClient.auth.onAuthStateChange((_event,session)=>{currentUser=session?.user||null;setTimeout(loadProfile,0)})}
 async function logoutShop(){if(supabaseClient)await supabaseClient.auth.signOut();currentUser=null;updateSession();notify("Sesión cerrada")}
 function updateSession(){sessionBtn.textContent=currentUser?"Cerrar sesión":"Iniciar sesión";adminLink.style.display=currentUser?.profileRole==="ADMIN"?"inline":"none"}

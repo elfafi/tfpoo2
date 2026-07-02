@@ -1,4 +1,4 @@
-const P=window.NikePatterns,localAuth=new P.AuthFacade(),$=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],money=n=>`S/ ${Number(n).toFixed(2)}`;
+const P=window.NikePatterns,$=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],money=n=>`S/ ${Number(n).toFixed(2)}`;
 const view=$("#view"),title=$("#title"),toast=$("#toast"),authDialog=$("#authDialog"),adminLogin=$("#adminLogin"),productDialog=$("#productDialog"),editProductDialog=$("#editProductDialog"),entityDialog=$("#entityDialog");
 const supabaseClient=window.supabase?.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
 const schemas={
@@ -20,34 +20,33 @@ function roleValue(value){return String(value||"CLIENTE").toUpperCase()==="ADMIN
 function formatDate(value){return value?new Date(value).toLocaleString():"-"}
 function roleBadge(role){return `<span class="role-badge ${role==="ADMIN"?"admin":"client"}">${roleLabel(role)}</span>`}
 async function fetchProfiles(role,id){
-    if(!supabaseClient)return{data:null,error:null};
+    if(!supabaseClient)return{data:null,error:{message:"No se pudo conectar con Supabase."}};
+    const rpc=await supabaseClient.rpc("admin_listar_usuarios",{p_rol:role||null});
+    if(!rpc.error){
+        const rows=rpc.data||[];
+        const data=id?rows.find(x=>x.id===id)||null:rows;
+        return{data,error:null};
+    }
     let query=supabaseClient.from("usuarios").select("id,nombre,email,rol,creado_en").order("creado_en",{ascending:false});
     if(id)query=query.eq("id",id).maybeSingle();else if(role)query=query.eq("rol",role);
-    const{data,error}=await query;
-    return{data,error};
+    return await query;
 }
-async function syncCurrentSessionClient(){
-    if(!supabaseClient)return;
-    const{data:{session}}=await supabaseClient.auth.getSession();if(!session)return;
-    const{data}=await supabaseClient.from("usuarios").select("nombre,email,rol").eq("id",session.user.id).maybeSingle();
-    if(data?.rol!=="CLIENTE")return;
-    const email=String(data.email||session.user.email||"").trim().toLowerCase();if(!email)return;
-    const repo=new P.Repository("clients"),existing=repo.all().find(c=>String(c.email||"").toLowerCase()===email);
-    const client={name:data.nombre||session.user.user_metadata?.full_name||email.split("@")[0],email,phone:existing?.phone||"Sin telefono"};
-    repo.save(existing?{...existing,...client}:client);
+async function updateProfile(id,nombre,rol){
+    const rpc=await supabaseClient.rpc("admin_actualizar_usuario",{p_id:id,p_nombre:nombre,p_rol:rol});
+    if(!rpc.error)return{error:null};
+    return await supabaseClient.from("usuarios").update({nombre,rol}).eq("id",id);
 }
 async function isSupabaseAdmin(){
     if(!supabaseClient)return false;
     const{data:{session}}=await supabaseClient.auth.getSession();
     if(!session)return false;
     const{data}=await supabaseClient.from("usuarios").select("rol").eq("id",session.user.id).maybeSingle();
-    return data?.rol==="ADMIN";
+    return roleValue(data?.rol)==="ADMIN";
 }
-async function guard(){if(localAuth.isAdmin()||await isSupabaseAdmin())return true;authDialog.showModal();return false}
+async function guard(){if(await isSupabaseAdmin())return true;authDialog.showModal();return false}
 
 adminLogin.onsubmit=async e=>{
     e.preventDefault();const f=new FormData(e.target),email=f.get("email"),password=f.get("password");$("#adminAuthMessage").textContent="";
-    if(email==="fabian"&&localAuth.login(email,password)){authDialog.close();render("home");return}
     if(!supabaseClient)return $("#adminAuthMessage").textContent="No se pudo conectar con Supabase.";
     const{data,error}=await supabaseClient.auth.signInWithPassword({email,password});
     if(error)return $("#adminAuthMessage").textContent="Credenciales incorrectas.";
@@ -69,8 +68,7 @@ function renderHome(){
     view.innerHTML=`<div class="stats">${[["Productos",db.products.length],["Clientes",db.clients.length],["Proveedores",db.suppliers.length],["Ventas locales",r.count]].map(x=>`<div class="stat"><span>${x[0]}</span><b>${x[1]}</b></div>`).join("")}</div><div class="admin-grid"><div class="panel admin-welcome"><span class="eyebrow">RESUMEN COMERCIAL</span><h2>Controla la tienda desde un solo lugar.</h2><p>Actualiza catálogo, inventario y ventas. Las nuevas compras también se registran en Supabase.</p><button class="btn-primary" onclick="render('products')">Gestionar productos</button></div><div class="panel"><span class="eyebrow">INGRESOS LOCALES</span><h2>${money(r.total)}</h2><p class="muted">Ventas pagadas acumuladas en este navegador.</p><button class="btn-secondary" onclick="render('sales')">Ver ventas</button></div></div>`;
 }
 async function renderCrud(entity){
-    if(isPeopleEntity(entity)&&supabaseClient&&await isSupabaseAdmin())return renderPeopleCrud(entity);
-    if(entity==="clients")await syncCurrentSessionClient();
+    if(isPeopleEntity(entity))return renderPeopleCrud(entity);
     const s=schemas[entity],repo=new P.Repository(entity),rows=repo.all();
     view.innerHTML=`<div class="panel"><div class="panel-heading"><div><span class="eyebrow">GESTION</span><h2>${s.title}</h2></div><button class="btn-primary" onclick="openEntityDialog('${entity}')">+ Anadir</button></div><div class="table-wrap"><table class="table"><thead><tr>${s.labels.map(x=>`<th>${x}</th>`).join("")}<th>Acciones</th></tr></thead><tbody>${rows.map(x=>`<tr>${s.fields.map(f=>`<td>${escapeHtml(x[f])}</td>`).join("")}<td><div class="table-actions"><button class="btn-secondary" onclick="openEntityDialog('${entity}',${jsArg(x.id)})">Editar</button><button class="btn-danger" onclick="removeEntity('${entity}',${jsArg(x.id)})">Eliminar</button></div></td></tr>`).join("")||`<tr><td colspan="${s.labels.length+1}">No hay registros.</td></tr>`}</tbody></table></div></div>`;
 }
@@ -86,7 +84,7 @@ async function renderPeopleCrud(entity){
     view.innerHTML=`<div class="panel"><div class="panel-heading"><div><span class="eyebrow">SUPABASE AUTH</span><h2>${s.title}</h2><p class="muted">Los perfiles se crean automaticamente al registrar una cuenta en la tienda.</p></div></div><div class="table-wrap"><table class="table"><thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Registrado</th><th>Acciones</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${escapeHtml(x.nombre||"Sin nombre")}</td><td>${escapeHtml(x.email)}</td><td>${roleBadge(x.rol)}</td><td>${formatDate(x.creado_en)}</td><td><button class="btn-secondary" onclick="openEntityDialog('${entity}',${jsArg(x.id)})">Editar rol</button></td></tr>`).join("")||'<tr><td colspan="5">No hay registros en este rol.</td></tr>'}</tbody></table></div></div>`;
 }
 async function openEntityDialog(entity,id){
-    if(isPeopleEntity(entity)&&supabaseClient&&await isSupabaseAdmin()){
+    if(isPeopleEntity(entity)){
         const s=schemas[entity];
         if(!id)return toastMsg("Las cuentas nuevas se crean desde el registro de la tienda.","error");
         const{data,error}=await fetchProfiles(null,id);
@@ -103,9 +101,9 @@ async function openEntityDialog(entity,id){
 }
 $("#entityDialogForm").onsubmit=async e=>{
     e.preventDefault();const entity=e.target.dataset.entity,formData=new FormData(e.target);
-    if(isPeopleEntity(entity)&&supabaseClient&&await isSupabaseAdmin()){
+    if(isPeopleEntity(entity)){
         const id=formData.get("id"),rol=roleValue(formData.get("rol"));
-        const{error}=await supabaseClient.from("usuarios").update({nombre:formData.get("nombre"),rol}).eq("id",id);
+        const{error}=await updateProfile(id,formData.get("nombre"),rol);
         if(error)return toastMsg(error.message,"error");
         entityDialog.close();renderCrud(entity);toastMsg("Perfil actualizado. Si cambiaste el rol, se movio de apartado.","success");return;
     }
