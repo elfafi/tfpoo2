@@ -6,7 +6,13 @@ let cart=JSON.parse(localStorage.getItem("nike_cart")||"[]"),activeFilter="Noved
 
 function notify(text,type="info"){toast.textContent=text;toast.dataset.type=type;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),2600)}
 function stockText(p){if(p.stock===0)return'<span class="stock out">Sin stock</span>';if(p.stock<=5)return'<span class="stock low">Quedan pocas unidades</span>';return'<span class="stock available">Disponible</span>'}
-function matchesFilter(p){if(activeFilter==="Novedades")return p.line==="Novedades";if(activeFilter==="Hombre"||activeFilter==="Mujer")return p.audience===activeFilter;return p.line===activeFilter}
+function matchesFilter(p){
+    if(activeFilter==="Novedades")return p.line==="Novedades";
+    if(activeFilter==="Futbol")return p.line==="Futbol";
+    if(p.line==="Futbol")return false;
+    if(activeFilter==="Hombre"||activeFilter==="Mujer")return p.audience===activeFilter;
+    return p.line===activeFilter;
+}
 function productVisual(p){
     const isBall=p.category==="Pelotas",isShirt=p.category==="Ropa"||p.category==="Camisetas",isBoot=p.category==="Chimpunes";
     const shape=isBall?`<circle cx="400" cy="300" r="155" fill="#f8f8f8" stroke="#111" stroke-width="16"/><path d="M400 145l75 55-28 88h-94l-28-88zM245 260l108 28-5 96-94 35M555 260l-108 28 5 96 94 35M320 510l28-126h104l28 126" fill="none" stroke="#111" stroke-width="16"/>`:isShirt?`<path d="M270 175l90-45h80l90 45 100 105-75 75-55-55v250H300V300l-55 55-75-75z" fill="url(#g)" stroke="#111" stroke-width="10"/><path d="M360 130q40 80 80 0" fill="none" stroke="#111" stroke-width="10"/>`:isBoot?`<path d="M170 395c130-10 190-65 250-180l95 30 15 95 115 55c25 12 15 65-20 65H205c-70 0-85-55-35-65z" fill="url(#g)" stroke="#111" stroke-width="10"/><path d="M290 330l190 45M250 500v35m80-35v35m80-35v35m80-35v35" stroke="#111" stroke-width="13"/>`:`<path d="M125 390c105-15 180-95 245-190 40-58 100-48 145 5l55 65 125 80c40 25 20 90-25 90H170c-60 0-80-40-45-50z" fill="url(#g)" stroke="#111" stroke-width="10"/><path d="M220 390c110-15 205-65 300-160M130 440h545" fill="none" stroke="#fff" stroke-width="15"/>`;
