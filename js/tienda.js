@@ -32,10 +32,11 @@ function renderCart(){
 }
 function setFilter(filter){activeFilter=filter;$$("[data-filter]").forEach(a=>a.classList.toggle("active",a.dataset.filter===filter));$("#productos").scrollIntoView({behavior:"smooth"});renderProducts()}
 function openAuth(mode="login"){setAuthMode(mode);authMessage.textContent="";loginModal.showModal()}
-function setAuthMode(mode){authMode=mode;$$("[data-auth-mode]").forEach(b=>b.classList.toggle("active",b.dataset.authMode===mode));$$(".register-only").forEach(x=>x.style.display=mode==="register"?"block":"none");authTitle.textContent=mode==="register"?"Crea tu cuenta Nike":"Inicia sesión para continuar";authDescription.textContent=mode==="register"?"Regístrate para guardar tus compras y beneficios.":"Accede a tu cuenta para finalizar la compra.";authSubmit.textContent=mode==="register"?"Crear cuenta":"Iniciar sesión"}
+function setAuthMode(mode){authMode=mode;$$("[data-auth-mode]").forEach(b=>b.classList.toggle("active",b.dataset.authMode===mode));$$(".register-only").forEach(x=>{x.style.display=mode==="register"?"block":"none";x.required=mode==="register"});authTitle.textContent=mode==="register"?"Crea tu cuenta Nike":"Inicia sesión para continuar";authDescription.textContent=mode==="register"?"Regístrate para guardar tus compras y beneficios.":"Accede a tu cuenta para finalizar la compra.";authSubmit.textContent=mode==="register"?"Crear cuenta":"Iniciar sesión"}
 async function submitAuth(e){
     e.preventDefault();const f=new FormData(e.target),email=f.get("email"),password=f.get("password"),name=f.get("name");
     if(!supabaseClient)return showAuthError("No se pudo conectar con Supabase.");
+    if(authMode==="register"&&!String(name||"").trim())return showAuthError("Ingresa tu nombre completo para crear la cuenta.");
     authSubmit.disabled=true;authSubmit.textContent="Procesando...";
     const result=authMode==="register"?await supabaseClient.auth.signUp({email,password,options:{data:{full_name:name}}}):await supabaseClient.auth.signInWithPassword({email,password});
     authSubmit.disabled=false;setAuthMode(authMode);

@@ -130,7 +130,7 @@ class ClientValidator extends SaleValidator { check(c){if(!c.client)throw Error(
 class SaleTemplate {
     process(context){this.validate(context);const sale=this.pay(context);return this.register(sale);}
     validate(context){const first=new StockValidator();first.setNext(new ClientValidator());first.validate(context);}
-    pay(context){const total=context.strategy.apply(context.items.reduce((a,i)=>a+i.product.price*i.quantity,0));return{id:Date.now(),client:context.client,total,status:new SaleState("PAGADA").name,date:new Date().toISOString(),receipt:context.receipt};}
+    pay(context){const total=context.strategy.apply(context.items.reduce((a,i)=>a+i.product.price*i.quantity,0));return{id:Date.now(),client:context.client,total,status:new SaleState("PAGADA").name,date:new Date().toISOString(),receipt:context.receipt,items:context.items.map(i=>({productId:i.product.id,productName:i.product.name,quantity:i.quantity,price:i.product.price}))};}
     register(sale){new Repository("sales").save(sale);return sale;}
 }
 
