@@ -7,9 +7,10 @@ let cart=JSON.parse(localStorage.getItem("nike_cart")||"[]"),activeFilter="Noved
 function notify(text,type="info"){toast.textContent=text;toast.dataset.type=type;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),2600)}
 function stockText(p){if(p.stock===0)return'<span class="stock out">Sin stock</span>';if(p.stock<=5)return'<span class="stock low">Quedan pocas unidades</span>';return'<span class="stock available">Disponible</span>'}
 function matchesFilter(p){
+    const isFootballProduct=p.line==="Futbol"||p.category==="Camisetas";
     if(activeFilter==="Novedades")return p.line==="Novedades";
-    if(activeFilter==="Futbol")return p.line==="Futbol";
-    if(p.line==="Futbol")return false;
+    if(activeFilter==="Futbol")return isFootballProduct;
+    if(isFootballProduct)return false;
     if(activeFilter==="Hombre"||activeFilter==="Mujer")return p.audience===activeFilter;
     return p.line===activeFilter;
 }
