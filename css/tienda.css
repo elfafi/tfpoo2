@@ -27,3 +27,9 @@ html{scroll-behavior:smooth}.nav{transition:box-shadow .25s}.nav:hover{box-shado
 /* Detalles de catalogo Nike */
 .card img{object-fit:contain;background:#f7f7f7}
 .product-detail{margin:8px 0 0;color:#555;font-size:12px;line-height:1.45}
+
+/* Navegacion de categorias */
+.nav nav{display:flex;align-items:center;gap:4px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+.nav nav::-webkit-scrollbar{display:none}
+.nav nav a{margin:0 6px}
+@media(max-width:500px){.nav{height:auto;min-height:72px;gap:10px;flex-wrap:wrap;padding:12px 15px}.nav nav{display:flex;order:3;width:100%;padding:6px 0}.nav nav a:first-child{margin-left:0}}
